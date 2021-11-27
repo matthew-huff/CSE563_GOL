@@ -1,11 +1,9 @@
-package gui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import gui.ImagePanel;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,10 +46,10 @@ class GUI extends JPanel{
 	}
 	
 	public void setupGUI() throws IOException {
-		BufferedImage alive = ImageIO.read(getClass().getResource("alive.png"));
-		BufferedImage dead = ImageIO.read(getClass().getResource("dead.png"));
+		BufferedImage alive = ImageIO.read(getClass().getResource("images/alive.png"));
+		BufferedImage dead = ImageIO.read(getClass().getResource("images/dead.png"));
 		
-		JLabel deadPic = new JLabel(new ImageIcon(dead));
+		
 		
 		f.setSize(800, 1200);
 		for(int i = 0; i < 40; i++) {

@@ -1,9 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,9 +16,11 @@ class GUI extends JPanel{
 	
 	private JFrame f;
 	private JPanel panel;
+   private JPanel controls;
 	private JLabel alivePic;
 	private JLabel deadPic;
-	private JButton button1;
+	private JButton startButton;
+   private JButton resetButton;
 	private ArrayList[][] test;
 	
 	
@@ -28,13 +28,45 @@ class GUI extends JPanel{
 		f = new JFrame("Game of Life");
 		FlowLayout layout = new FlowLayout(0, 0, 0);
 		panel = new JPanel(layout);
-		panel.setSize(800, 800);
-		BufferedImage alive = ImageIO.read(getClass().getResource("images/alive.png"));
+      controls = new JPanel(layout);
+	   BufferedImage alive = ImageIO.read(getClass().getResource("images/alive.png"));
 		BufferedImage dead = ImageIO.read(getClass().getResource("images/dead.png"));
-
+    }
+    
+    public void startGame()  {
+            
+      startButton.removeActionListener(startButton.getActionListeners()[0]);
+      startButton.setText("PAUSE");
+      startButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e)  {  
+            pauseGame();
+          } 
+      });    
+      
+      System.out.println("START"); // placeholder
+      
+      // Resume evolution
+    }
+    
+    public void pauseGame()  {
+      startButton.removeActionListener(startButton.getActionListeners()[0]);
+      startButton.setText("START");
+      startButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e)  {  
+            startGame();
+          } 
+      });  
+      
+      System.out.println("PAUSE"); // placeholder
+      
+      // Pause evolution
+    }
+    
+    public void resetGame()  {
+      System.out.println("RESET"); // placeholder
+      
+      // Pause evolution and reset all cells to dead
     }  
-	
-
 	
 	public ArrayList<Integer> getLocOfClick(int x, int y){
 		ArrayList<Integer> i = new ArrayList<Integer>();
@@ -49,16 +81,13 @@ class GUI extends JPanel{
 		BufferedImage alive = ImageIO.read(getClass().getResource("images/alive.png"));
 		BufferedImage dead = ImageIO.read(getClass().getResource("images/dead.png"));
 		
-		
-		
-		f.setSize(800, 1200);
-		for(int i = 0; i < 40; i++) {
-			for(int j = 0; j < 40; j++) {
-				JLabel deadPic = new JLabel(new ImageIcon(dead));
-				panel.add(deadPic);
-			}
+      for(int i = 0; i < 30; i++) {
+         for(int j = 0; j < 30; j++)   {
+			JLabel deadPic = new JLabel(new ImageIcon(dead));
+			panel.add(deadPic);
+         }
 		}
-		panel.setSize(800, 800);
+
 		panel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -69,11 +98,33 @@ class GUI extends JPanel{
 				return;
 			}
 		});
-		Dimension x = new Dimension(800,800);
-		panel.setMinimumSize(x);
-		panel.setMaximumSize(x);
-		f.add(panel);
-		f.setResizable(false);
+    
+      startButton = new JButton("START");
+      startButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e)  {  
+            startGame();
+          } 
+      });      
+      resetButton = new JButton("RESET");
+      resetButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e)  {  
+            resetGame();
+          } 
+      });      
+            
+      controls.setLayout(new FlowLayout());
+      controls.setLocation(0,600);
+      controls.setSize(600,100);
+      controls.add(startButton);
+      controls.add(resetButton);
+   
+      panel.setSize(600, 600);
+      f.setSize(600, 700);
+   
+      f.add(controls);
+      f.add(panel);
+		
+      f.setResizable(false);
 		f.setVisible(true);	
 	}
 	

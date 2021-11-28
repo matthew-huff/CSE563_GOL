@@ -1,3 +1,4 @@
+package gol;
 import java.util.ArrayList;
 
 public class Tile {
@@ -7,22 +8,40 @@ public class Tile {
 	private int current_state;
 	private int next_state;
 	
-	public Tile(int c_state) {
+	//x and y represent location within grid
+	private int x;
+	private int y;
+	
+	public Tile(int c_state, int x, int y) {
 		current_state = c_state;
 		next_state = 0;
 		neighbors = new ArrayList<Tile>();
+		this.x = x;
+		this.y = y;
 	}
 	
 	public int get_current_state() {
 		return current_state;
 	}
 	
-	public void set_current_state(int state){
-		current_state = state;
-		
+	public ArrayList<Tile> getNeighborList(){
+		return this.neighbors;
 	}
 	
-	public void change_current_state_to_next_state() {
+	public void set_current_state(int state){
+		current_state = state;
+	}
+	
+	public void flip_current_state() {
+		if(current_state == 0) {
+			this.current_state = 1;
+		}
+		else {
+			this.current_state = 0;
+		}
+	}
+	
+	public void update_state() {
 		current_state = next_state;
 	}
 	
@@ -39,7 +58,6 @@ public class Tile {
 				neighbor += 1;
 			}
 		}
-		
 		return neighbor;
 	}
 	
@@ -63,6 +81,11 @@ public class Tile {
 			return true;
 		}
 		return false;
+	}
+	
+	public String toString() {
+		return String.format("(%d, %d)", x, y);
+		//return Integer.toString(current_state);
 	}
 	
 	public void cal_new_state() {

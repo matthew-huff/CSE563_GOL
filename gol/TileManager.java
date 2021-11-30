@@ -1,5 +1,4 @@
 package gol;
-import java.util.ArrayList;
 
 import gol.Tile;
 public class TileManager {

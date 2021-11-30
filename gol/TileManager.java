@@ -1,41 +1,55 @@
 package gol;
+import java.util.ArrayList;
 
-import gol.Tile;
+class Tile  {
+   public boolean alive;
+   public boolean aliveNext;
+}
+
 public class TileManager {
-	ArrayList<ArrayList<Tile>> tiles;
+	public Tile[][] tiles;
 	int x;
 	int y;
-	int genNum = 0;
 	
-	public TileManager(int x, int y) {
-		tiles = new ArrayList<ArrayList<Tile>>();
-		this.x = x;
-		this.y = y;
-		
-		for(int i = 0; i < x; i ++) {
-			ArrayList<Tile> e = new ArrayList<Tile>();
-			tiles.add(e);
-		}
-		
-		for(int i = 0; i < x; i ++) {
+	public TileManager(int xSize, int ySize) {
+		x = xSize;
+		y = ySize;
+      
+      tiles = new Tile[x][y];
+      for(int i = 0; i < x; i ++) {
 			for(int j = 0; j < y; j++) {
-				Tile t = new Tile(0, i, j);
-				tiles.get(i).add(t);
+				tiles[i][j] = new Tile();
 			}
 		}
-		
-		for(int i = 0; i < x; i ++) {
-			for(int j = 0; j < y; j++) {
-				findNeighbors(i, j);	
-			}
-		}
+
 	}
 	
 	public void resetTiles() {
-		genNum = 0;
 		for(int i = 0; i < x; i ++) {
 			for(int j = 0; j < y; j++) {
-				tiles.get(i).get(j).set_current_state(0);
+				tiles[i][j].alive = false;
+			}
+		}
+	}
+   
+   public void calcNewState(int xCoord, int yCoord) {
+		int liveAdjacent = liveNeighbors(xCoord, yCoord);
+      
+		if (tiles[xCoord][yCoord].alive) {
+			if(liveAdjacent > 3 || liveAdjacent < 2) {
+				tiles[xCoord][yCoord].aliveNext = false;
+			}
+         else {
+				tiles[xCoord][yCoord].aliveNext = true;
+			}
+		
+		}
+      else {
+			if(liveAdjacent == 3) {
+				tiles[xCoord][yCoord].aliveNext = true;
+			}
+         else {
+				tiles[xCoord][yCoord].aliveNext = false;
 			}
 		}
 	}
@@ -43,48 +57,46 @@ public class TileManager {
 	public void calcNextGen() {
 		for(int i = 0; i < x; i ++) {
 			for(int j = 0; j < y; j++) {
-				tiles.get(i).get(j).cal_new_state();
+				calcNewState(i, j);
 			}
 		}
-		for(int i = 0; i < x; i ++) {
+      
+      for(int i = 0; i < x; i ++) {
 			for(int j = 0; j < y; j++) {
-				tiles.get(i).get(j).update_state();
+				tiles[i][j].alive = tiles[i][j].aliveNext;
 			}
 		}
-		genNum++;	
 	}
 	
 	public void flipState(int i, int j) {
-		tiles.get(i).get(j).flip_current_state();
+      tiles[i][j].alive = !tiles[i][j].alive;
 	}
 	
-	public void findNeighbors(int i, int j) {
+	public int liveNeighbors(int i, int j) {
+      int count = 0;  
+      
 		for(int k = -1; k < 2; k++) {
 			for(int l = -1; l < 2; l++) {
 				if(i+k >= 0 && i+k < x && j+l >= 0  && j+l < y) {
 					if(!(k == 0 && l == 0)) {
-						tiles.get(i).get(j).add_new_neighbor(tiles.get(i+k).get(j+l));
+                  if (tiles[i+k][j+l].alive)
+                     count++;
 					}
 				}
 			}
 		}
+      
+      return count;
 	}
-	
-	public void printTiles() {
-		for(int i = 0; i < x; i ++) {
-			System.out.println(tiles.get(i).toString());
-		}
-		System.out.println("--------------------");
-	}
-	
-	public void printNeighbors() {
-		for(int i = 0; i < x; i ++) {
+   
+   public boolean noLife() {
+      for(int i = 0; i < x; i ++) {
 			for(int j = 0; j < y; j++) {
-				System.out.println(String.format("%d, %d: ", i, j) + tiles.get(i).get(j).getNeighborList());
+				if (tiles[i][j].alive)
+               return false;
 			}
 		}
-		System.out.println("--------------------");
+      return true;
 	}
-	
-	
+
 }

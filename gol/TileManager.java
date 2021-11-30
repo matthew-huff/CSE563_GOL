@@ -1,5 +1,4 @@
 package gol;
-import java.util.ArrayList;
 
 class Tile  {
    public boolean alive;

@@ -2,6 +2,7 @@ package gol;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 import gol.TileManager;
 
@@ -76,12 +77,7 @@ class GUI extends JPanel{
     
 	
 	public void nextGen() throws IOException {
-		try {
-			updateTiles();
-		}
-		catch(IOException e1) {
-			e1.printStackTrace();
-		}
+		updateTiles();
 		
 	}
 	
@@ -89,7 +85,7 @@ class GUI extends JPanel{
       // Set "currRunning" to "true" so that main will
       // regularly update the tiles
       currRunning = true;
-      panel.removeMouseListener(mouseListener);
+      //panel.removeMouseListener(mouseListener);
       nextButton.setEnabled(false);
       nextButton.setVisible(false);
       
@@ -104,6 +100,7 @@ class GUI extends JPanel{
           } 
 
       });  
+    }
 
     
     public void pauseGame()  {
@@ -183,7 +180,12 @@ class GUI extends JPanel{
       nextButton = new JButton("NEXT");
       nextButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)  {  
-				nextGen();
+				try {
+					nextGen();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
           } 
       }); 
             

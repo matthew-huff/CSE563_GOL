@@ -56,51 +56,62 @@ class GUI extends JPanel{
    private JButton resetButton;
    private JButton nextButton;
 
-	private int x = 30;
+   private MouseAdapter mouseListener;
+
+	
+	public boolean currRunning = false;
+	
+   private int x = 30;
 	private int y = 30;
-	
-	//states of the game
-	private String off = "OFF";
-	private String on = "ON";
-	private String paused = "PAUSED";
-	private String running = "RUNNING";
-	
-	private String state;
-	
-	private boolean currRunning = false;
-	
 	private TileManager tm = new TileManager(x, y);
 	
-	GUI() {
+
+	GUI() throws IOException{
+
 		f = new JFrame("Game of Life");
 		FlowLayout layout = new FlowLayout(0, 0, 0);
       controls = new JPanel(layout);
     }
 
-	public void nextGen() {
-		updateTiles();
+    
+	
+	public void nextGen() throws IOException {
+		try {
+			updateTiles();
+		}
+		catch(IOException e1) {
+			e1.printStackTrace();
+		}
+		
 	}
-   
-   public void startGame()  {
-    	// Set "currRunning" to "true" so that main will
-      // update the tiles
+	
+    public void startGame() {
+      // Set "currRunning" to "true" so that main will
+      // regularly update the tiles
       currRunning = true;
+      panel.removeMouseListener(mouseListener);
       nextButton.setEnabled(false);
       nextButton.setVisible(false);
       
+      // Toggle the "start" button to become "pause"
+
+
       startButton.removeActionListener(startButton.getActionListeners()[0]);
       startButton.setText("PAUSE");
       startButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)  {  
             pauseGame();
           } 
+
       });  
-    }
+
     
     public void pauseGame()  {
     	// Set "currRunning" to "false" so that main will
       // not update the tiles
       currRunning = false;
+
+
       nextButton.setEnabled(true);
       nextButton.setVisible(true);
       
@@ -122,8 +133,9 @@ class GUI extends JPanel{
 	
 	public void updateTiles() {
 		tm.calcNextGen();
-		displayTiles();
+    displayTiles();
 	}
+
 
 	public void displayTiles() {
       // Repain the grid with the updated tile information
@@ -135,11 +147,14 @@ class GUI extends JPanel{
       return tm.noLife();
    }
 
+
 	public void setupGUI() {
       
-      grid = new TileGrid(600, 600, tm.tiles);	
+    grid = new TileGrid(600, 600, tm.tiles);	
       
 		grid.addMouseListener(new MouseAdapter() {
+
+  
 			public void mouseClicked(MouseEvent e) {
 				int mouseX = e.getX() / 20;
 				int mouseY = e.getY() / 20;
@@ -148,7 +163,8 @@ class GUI extends JPanel{
 				   displayTiles();
 				}	
 			}
-      });
+     });
+
 		
       startButton = new JButton("START");
       startButton.addActionListener(new ActionListener() {
@@ -173,10 +189,11 @@ class GUI extends JPanel{
             
       controls.setLayout(new FlowLayout());
       controls.setLocation(0,600);
-      controls.setSize(600,100);
+      controls.setSize(620,100);
       controls.add(startButton);
       controls.add(resetButton);
       controls.add(nextButton);
+
 
       f.setSize(620, 700);
       f.add(controls);
@@ -186,6 +203,7 @@ class GUI extends JPanel{
 
 		
       f.setResizable(false);
+
 		f.setVisible(true);	
 	}
 

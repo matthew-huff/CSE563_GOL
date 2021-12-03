@@ -1,6 +1,5 @@
 package gol;
 import gol.GUI;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class GameOfLife { 
@@ -23,5 +22,6 @@ public class GameOfLife {
             waitTime = 50;
       }
       
+
    }
 }

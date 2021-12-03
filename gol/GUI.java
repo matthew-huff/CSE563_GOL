@@ -2,32 +2,62 @@ package gol;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
 
 import gol.TileManager;
 
+class TileGrid extends JPanel {
+    private int width;
+    private int height;
+    private int x;
+    private int y;
+    private Tile[][] tiles;
+    
+    public TileGrid(int width, int height, Tile[][] tiles) {
+      this.width = width;
+      this.height = height;
+      x = width / 20;
+      y = height / 20;
+      this.tiles = tiles;
+    }
 
+    public void paintComponent(Graphics g) {
+       super.paintComponent(g);
+   
+       Color[] colors = {Color.GRAY, Color.YELLOW};
+       int lengthUnit = 20;
+       
+       for (int row = 0; row < y; row++) {
+           for (int col = 0; col < x; ++col) {
+               if (tiles[col][row].alive)
+                  g.setColor(colors[1]);
+               else
+                  g.setColor(colors[0]);
+               g.fillRect(row * lengthUnit, col * 20, 20, 20);
+           }
+       }
+       
+       g.setColor(Color.BLACK);
+       for (int row = 0; row < y; row++) {
+           g.drawLine(0, (row * 20), width, (row * 20));
+           for (int col = 0; col < x; ++col) {
+               g.drawLine((col * 20), 0, (col * 20), height);
+           }
+       }
 
+   }
+}
 
 class GUI extends JPanel{
 	
 	private JFrame f;
-	private JPanel panel;
+   private TileGrid grid;
    private JPanel controls;
-	private JLabel alivePic;
-	private JLabel deadPic;
 	private JButton startButton;
    private JButton resetButton;
    private JButton nextButton;
+
    private MouseAdapter mouseListener;
+
 	
 	public boolean currRunning = false;
 	
@@ -35,14 +65,14 @@ class GUI extends JPanel{
 	private int y = 30;
 	private TileManager tm = new TileManager(x, y);
 	
+
 	GUI() throws IOException{
+
 		f = new JFrame("Game of Life");
 		FlowLayout layout = new FlowLayout(0, 0, 0);
-		panel = new JPanel(layout);
       controls = new JPanel(layout);
-	   BufferedImage alive = ImageIO.read(getClass().getResource("../images/alive.png"));
-		BufferedImage dead = ImageIO.read(getClass().getResource("../images/dead.png"));
     }
+
     
 	
 	public void nextGen() throws IOException {
@@ -64,125 +94,96 @@ class GUI extends JPanel{
       nextButton.setVisible(false);
       
       // Toggle the "start" button to become "pause"
+
+
       startButton.removeActionListener(startButton.getActionListeners()[0]);
       startButton.setText("PAUSE");
       startButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)  {  
             pauseGame();
           } 
-      });
-    }
+
+      });  
+
     
     public void pauseGame()  {
     	// Set "currRunning" to "false" so that main will
       // not update the tiles
       currRunning = false;
-      panel.addMouseListener(mouseListener);
+
+
       nextButton.setEnabled(true);
       nextButton.setVisible(true);
       
-      // Toggle the "pause" button to become "start"
       startButton.removeActionListener(startButton.getActionListeners()[0]);
       startButton.setText("START");
       startButton.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e)  {
-				startGame();
-          }
+          public void actionPerformed(ActionEvent e)  {  
+            startGame();
+          } 
       });  
     }
-    
-    public void resetGame() throws IOException  {
+	
+    public void resetGame() {
       // Reset all cells to dead and pause evolution
+      pauseGame();
       tm.resetTiles();
       displayTiles();
-      pauseGame();
     }  
 	
-	public void updateTiles() throws IOException {
+	public void updateTiles() {
 		tm.calcNextGen();
-      displayTiles();
+    displayTiles();
 	}
-	
-	public void displayTiles() throws IOException {
-		panel.removeAll();
-		BufferedImage alive = ImageIO.read(getClass().getResource("../images/alive.png"));
-		BufferedImage dead = ImageIO.read(getClass().getResource("../images/dead.png"));
-		for(int i = 0; i < x; i++) {
-			for(int j = 0; j < y; j++)   {
-				if(!tm.tiles[i][j].alive) {
-					JLabel deadPic = new JLabel(new ImageIcon(dead));
-					panel.add(deadPic);
-	        	 }
-				else {
-					JLabel alivePic = new JLabel(new ImageIcon(alive));
-					panel.add(alivePic);
-				}
-				
-	         }
-		}
-      panel.revalidate();
+
+
+	public void displayTiles() {
+      // Repain the grid with the updated tile information
+      f.repaint();
+      f.revalidate();
 	}
    
    public boolean detectNoLife() {
       return tm.noLife();
    }
 
-	public void setupGUI() throws IOException {
-		BufferedImage alive = ImageIO.read(getClass().getResource("../images/alive.png"));
-		BufferedImage dead = ImageIO.read(getClass().getResource("../images/dead.png"));
-		
-      for(int i = 0; i < x; i++) {
-         for(int j = 0; j < y; j++)   {
-			JLabel deadPic = new JLabel(new ImageIcon(dead));
-			panel.add(deadPic);
-         }
-		}
+
+	public void setupGUI() {
       
-      mouseListener = new MouseAdapter() {
+    grid = new TileGrid(600, 600, tm.tiles);	
+      
+		grid.addMouseListener(new MouseAdapter() {
+
+  
 			public void mouseClicked(MouseEvent e) {
 				int mouseX = e.getX() / 20;
 				int mouseY = e.getY() / 20;
 				if (mouseY < y && mouseX < x) {			
 					tm.flipState(mouseY, mouseX);
-				   try {
-						displayTiles();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+				   displayTiles();
 				}	
 			}
-      };		
-      
-		panel.addMouseListener(mouseListener);
+     });
+
 		
       startButton = new JButton("START");
       startButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)  {  
             startGame();
           } 
-      });      
+      }); 
+           
       resetButton = new JButton("RESET");
       resetButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)  {  
-            try {
-				resetGame();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+            resetGame();
           } 
       });    
       
       nextButton = new JButton("NEXT");
       nextButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)  {  
-            try {
 				nextGen();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
           } 
       }); 
             
@@ -192,21 +193,27 @@ class GUI extends JPanel{
       controls.add(startButton);
       controls.add(resetButton);
       controls.add(nextButton);
-   
-      panel.setSize(620, 600);
-      panel.setLocation(0, 0);
+
+
       f.setSize(620, 700);
-   
       f.add(controls);
-      f.add(panel);
+      f.add(grid);
+      f.setVisible(true);
+      f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		
       f.setResizable(false);
-		f.setVisible(true);
-      f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-   } 
 
+		f.setVisible(true);	
+	}
+
+   
+   public void run() {
+      
+      if (currRunning)  {
+         updateTiles();
+         if (detectNoLife())
+            resetGame();        
+      }
+   }
 }
-
-
-
-
